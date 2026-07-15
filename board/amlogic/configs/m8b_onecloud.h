@@ -294,16 +294,21 @@
 //                                      DDR
 // =============================================================================
 // Memory size
+// 2 x 1GB 16bit DDR3 in 32bit mode (single rank) = 2GB total.
+// Each chip doubled capacity vs 512MB, so row bits: 15 -> 16 (A0~A15).
 #define PHYS_MEMORY_START		(0x00000000)
-#define PHYS_MEMORY_SIZE		(0x40000000)
-#define CONFIG_DDR3_ROW_SIZE	(3)
-#define CONFIG_DDR3_COL_SIZE	(2)
-#define CONFIG_DDR_ROW_BITS		(15)
+#define PHYS_MEMORY_SIZE		(0x80000000)
+#define CONFIG_DDR3_ROW_SIZE	(0)	// 00: A0~A15 (16 row bits)
+#define CONFIG_DDR3_COL_SIZE	(2)	// 10: A0~A9  (10 col bits)
+#define CONFIG_DDR_ROW_BITS		(16)
 
 // Auto detect memory
 #ifdef CONFIG_ACS
 	#define CONFIG_DDR_MODE_AUTO_DETECT		// Auto detect DDR bus-width
-	#define CONFIG_DDR_SIZE_AUTO_DETECT		// Auto detect DDR size
+	// Size auto-detect is disabled: ddr_auto_detect.c only supports up to
+	// 1GB in 32bit mode (its 2GB entry is commented out), so it would
+	// wrongly report 1GB for this 2GB board. Size comes from PHYS_MEMORY_SIZE.
+	//#define CONFIG_DDR_SIZE_AUTO_DETECT	// Auto detect DDR size
 #endif
 
 // Dump ddr info
@@ -316,9 +321,9 @@
 
 // DDR clock: 408~804MHz with fixed step 12MHz
 // #define CFG_DDR_CLK		(636)
-#define CFG_DDR_CLK			(696)
+// #define CFG_DDR_CLK	    (696)
 // #define CFG_DDR_CLK		(768)
-// #define CFG_DDR_CLK		(792)
+#define CFG_DDR_CLK		(792)
 #define CFG_DDR_MODE		(CFG_DDR_32BIT)
 
 // DDR features
