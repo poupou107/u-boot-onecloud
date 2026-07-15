@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04  # 使用更新的LTS版本
+    runs-on: ubuntu-22.04  # 使用更新的LTS版本
     steps:
       - name: Checkout
         uses: actions/checkout@v4  # 升级到v4
@@ -23,17 +23,12 @@ jobs:
 
       - name: Download toolchain
         run: |
-          TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2"
-          # 使用更新的工具链（支持更多特性，且下载更快）
-          curl -L -o toolchain.tar.bz2 "$TOOLCHAIN_URL"
-          tar xjf toolchain.tar.bz2
-          # 获取解压后的目录名（可能因版本变化）
-          TOOLCHAIN_DIR=$(find . -maxdepth 1 -type d -name "gcc-arm-none-eabi-*" | head -1)
-          echo "TOOLCHAIN_DIR=$TOOLCHAIN_DIR" >> $GITHUB_ENV
+          curl -L -O https://redirect.armbian.com/_toolchain/gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz
+          tar xvf ./gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz
 
       - name: Build
         run: |
-          export PATH="$PATH:$(pwd)/${{ env.TOOLCHAIN_DIR }}/bin"
+          export PATH="$PATH:$(pwd)/gcc-linaro-arm-none-eabi-4.8-2014.04_linux/bin"
           make distclean
           make m8b_onecloud_config
           make -j$(nproc)
