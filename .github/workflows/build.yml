@@ -135,21 +135,32 @@ jobs:
           retention-days: 30  # 保留30天
 
       - name: Create Release
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'  # 仅在主分支创建Release
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           time="${{ github.event.head_commit.timestamp }}"
           sha="${GITHUB_SHA:0:8}"
           tag="build-$(date +'%Y%m%d-%H%M' -d "$time")"
           message="Auto-Build $(date +'%Y-%m-%d %H:%M' -d "$time")"
-          
-          # 检查hub工具是否可用，如不可用则安装
-          if ! command -v hub &> /dev/null; then
-            sudo apt install -y hub
-          fi
-          
-          hub release create -t "$GITHUB_SHA" "$tag" -m "$message" \
-            $(for a in build/*.bin; do echo -a $a; done) \
-            -a build/resource.img \
-            -a build/eMMC.burn.img
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+
+          # 收集所有需要上传的文件
+          ASSETS=(
+            build/ddr_init.bin
+            build/u-boot-comp.bin
+            build/u-boot.bin
+            build/resource.img
+            build/eMMC.burn.img
+          )
+
+          # 删除同名旧tag（防止重复构建tag冲突，可选，注释掉也行）
+          # git tag -d "$tag" || true
+          # git push origin --delete "$tag" || true
+
+          # 创建release并上传资产，gh cli语法
+          gh release create "$tag" \
+            --target "$GITHUB_SHA" \
+            --title "$message" \
+            --notes "$message" \
+            "${ASSETS[@]}"
+
