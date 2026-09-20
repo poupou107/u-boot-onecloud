@@ -135,7 +135,7 @@ jobs:
           retention-days: 30  # 保留30天
 
       - name: Create Release
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/onecloud'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
