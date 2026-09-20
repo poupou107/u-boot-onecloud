@@ -141,10 +141,9 @@ jobs:
         run: |
           time="${{ github.event.head_commit.timestamp }}"
           sha="${GITHUB_SHA:0:8}"
-          tag="build-$(date +'%Y%m%d-%H%M' -d "$time")"
+          tag="build-$(date +'%Y%m%d-%H%M' -d "$time")-${sha}"
           message="Auto-Build $(date +'%Y-%m-%d %H:%M' -d "$time")"
 
-          # 收集所有需要上传的文件
           ASSETS=(
             build/ddr_init.bin
             build/u-boot-comp.bin
@@ -153,14 +152,10 @@ jobs:
             build/eMMC.burn.img
           )
 
-          # 删除同名旧tag（防止重复构建tag冲突，可选，注释掉也行）
-          # git tag -d "$tag" || true
-          # git push origin --delete "$tag" || true
-
-          # 创建release并上传资产，gh cli语法
           gh release create "$tag" \
             --target "$GITHUB_SHA" \
             --title "$message" \
             --notes "$message" \
             "${ASSETS[@]}"
+
 
