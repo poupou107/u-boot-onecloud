@@ -136,26 +136,17 @@ jobs:
 
       - name: Create Release
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          time="${{ github.event.head_commit.timestamp }}"
-          sha="${GITHUB_SHA:0:8}"
-          tag="build-$(date +'%Y%m%d-%H%M' -d "$time")-${sha}"
-          message="Auto-Build $(date +'%Y-%m-%d %H:%M' -d "$time")"
-
-          ASSETS=(
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.sha }}
+          name: Auto Build ${{ github.sha }}
+          files: |
             build/ddr_init.bin
             build/u-boot-comp.bin
             build/u-boot.bin
             build/resource.img
             build/eMMC.burn.img
-          )
-
-          gh release create "$tag" \
-            --target "$GITHUB_SHA" \
-            --title "$message" \
-            --notes "$message" \
-            "${ASSETS[@]}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
 
